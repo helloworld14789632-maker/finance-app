@@ -30,3 +30,6 @@ def create_app():
         db.create_all()
     
     return app
+
+# Create app instance for Gunicorn/production deployment
+app = create_app()
