@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Personal Finance Manager</h1>
+            <nav>
+                <a href="{{ url_for('main.index') }}">Dashboard</a>
+                <a href="{{ url_for('transactions.add_transaction') }}" class="btn btn-primary" style="text-decoration: none; color: white;">+ Add Transaction</a>
+            </nav>
+        </header>
+
+        <div class="stats-container">
+            <div class="stat-card income">
+                <h3>Total Income</h3>
+                <div class="amount">${{ "%.2f"|format(total_income) }}</div>
+            </div>
+            <div class="stat-card expense">
+                <h3>Total Expense</h3>
+                <div class="amount">${{ "%.2f"|format(total_expense) }}</div>
+            </div>
+            <div class="stat-card balance">
+                <h3>Balance</h3>
+                <div class="amount">${{ "%.2f"|format(balance) }}</div>
+            </div>
+        </div>
+
+        <div class="transactions-container">
+            <h2>Recent Transactions (Last 30 Days)</h2>
+            {% if transactions %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ transaction.description }}</td>
+                        <td><span class="category-badge">{{ transaction.category }}</span></td>
+                        <td><span class="type-badge {{ transaction.transaction_type }}">{{ transaction.transaction_type.upper() }}</span></td>
+                        <td class="amount {{ transaction.transaction_type }}">
+                            {% if transaction.transaction_type == 'income' %}+{% else %}-{% endif %}${{ "%.2f"|format(transaction.amount) }}
+                        </td>
+                        <td class="actions">
+                            <a href="{{ url_for('transactions.edit_transaction', id=transaction.id) }}" class="btn btn-edit btn-small">Edit</a>
+                            <form action="{{ url_for('transactions.delete_transaction', id=transaction.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="btn btn-delete btn-small">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <p>No transactions yet. <a href="{{ url_for('transactions.add_transaction') }}">Add your first transaction</a></p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
